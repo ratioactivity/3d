@@ -7,47 +7,53 @@
     <link rel="stylesheet" href="styles/main.css" />
   </head>
   <body>
-    <header>
-      <h1>Cost Breakdown Calculator</h1>
-      <p>Fill in each section and calculate your total.</p>
-    </header>
+    <img class="decorative-banner" src="/assets/banner.png" alt="" aria-hidden="true" />
 
-    <main>
-      <form id="calculator-form">
-        <section aria-labelledby="income-heading">
-          <h2 id="income-heading">Income</h2>
-          <label for="income">Monthly Income</label>
-          <input id="income" name="income" type="number" placeholder="0" />
+    <div class="content-panel">
+      <header>
+        <h1>Cost Breakdown Calculator</h1>
+        <p>Fill in each section and calculate your total.</p>
+      </header>
+
+      <main>
+        <form id="calculator-form">
+          <section aria-labelledby="income-heading">
+            <h2 id="income-heading">Income</h2>
+            <label for="income">Monthly Income</label>
+            <input id="income" name="income" type="number" placeholder="0" />
+          </section>
+
+          <section aria-labelledby="expenses-heading">
+            <h2 id="expenses-heading">Expenses</h2>
+            <label for="housing">Housing</label>
+            <input id="housing" name="housing" type="number" placeholder="0" />
+
+            <label for="utilities">Utilities</label>
+            <input id="utilities" name="utilities" type="number" placeholder="0" />
+
+            <label for="food">Food</label>
+            <input id="food" name="food" type="number" placeholder="0" />
+          </section>
+
+          <section aria-labelledby="breakdown-heading">
+            <h2 id="breakdown-heading">Breakdown</h2>
+            <div id="breakdown-output" aria-live="polite">
+              <p>Total Expenses: <span id="total-expenses">$0.00</span></p>
+              <p>Remaining Balance: <span id="remaining-balance">$0.00</span></p>
+            </div>
+          </section>
+
+          <button id="calculate-button" type="submit">Calculate Total</button>
+        </form>
+
+        <section aria-labelledby="total-heading">
+          <h2 id="total-heading">Total Output</h2>
+          <p id="total-output" aria-live="polite">$0.00</p>
         </section>
+      </main>
+    </div>
 
-        <section aria-labelledby="expenses-heading">
-          <h2 id="expenses-heading">Expenses</h2>
-          <label for="housing">Housing</label>
-          <input id="housing" name="housing" type="number" placeholder="0" />
-
-          <label for="utilities">Utilities</label>
-          <input id="utilities" name="utilities" type="number" placeholder="0" />
-
-          <label for="food">Food</label>
-          <input id="food" name="food" type="number" placeholder="0" />
-        </section>
-
-        <section aria-labelledby="breakdown-heading">
-          <h2 id="breakdown-heading">Breakdown</h2>
-          <div id="breakdown-output" aria-live="polite">
-            <p>Total Expenses: <span id="total-expenses">$0.00</span></p>
-            <p>Remaining Balance: <span id="remaining-balance">$0.00</span></p>
-          </div>
-        </section>
-
-        <button id="calculate-button" type="submit">Calculate Total</button>
-      </form>
-
-      <section aria-labelledby="total-heading">
-        <h2 id="total-heading">Total Output</h2>
-        <p id="total-output" aria-live="polite">$0.00</p>
-      </section>
-    </main>
+    <img class="decorative-banner" src="/assets/banner.png" alt="" aria-hidden="true" />
 
     <script src="scripts/app.js"></script>
   </body>
