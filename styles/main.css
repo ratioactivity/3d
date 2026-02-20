@@ -1,0 +1,66 @@
+@font-face {
+  font-family: "Showpop";
+  src: url("/assets/Showpop.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Almondmilky";
+  src: url("/assets/Almondmilky.ttf") format("truetype"),
+    url("/assets/AlmondMilky.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Almondmilky", Arial, sans-serif;
+  background: url("/assets/background.png") center / cover no-repeat fixed;
+  color: #111;
+}
+
+header,
+main {
+  width: min(920px, 92vw);
+  margin: 0 auto;
+}
+
+header {
+  padding-top: 2rem;
+}
+
+h1,
+h2 {
+  font-family: "Showpop", Georgia, serif;
+}
+
+form,
+#total-output {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+section {
+  margin-bottom: 1rem;
+}
+
+label,
+input,
+button {
+  display: block;
+}
+
+input,
+button {
+  width: 100%;
+  margin-top: 0.25rem;
+  margin-bottom: 0.75rem;
+  padding: 0.6rem;
+}
