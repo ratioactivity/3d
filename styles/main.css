@@ -1,14 +1,13 @@
 @font-face {
   font-family: "Showpop";
-  src: url("/assets/Showpop.ttf") format("truetype");
+  src: url("../assets/Showpop.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Almondmilky";
-  src: url("/assets/Almondmilky.ttf") format("truetype"),
-    url("/assets/AlmondMilky.ttf") format("truetype");
+  src: url("../assets/AlmondMilky.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -21,30 +20,63 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: "Almondmilky", Arial, sans-serif;
-  background: url("/assets/background.png") center / cover no-repeat fixed;
-  color: #111;
+  background: url("../assets/background.png") center / cover no-repeat fixed;
+  color: #2f2540;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  gap: 1rem;
+}
+
+.decorative-banner {
+  width: min(940px, 95vw);
+  height: auto;
+  display: block;
+}
+
+.content-panel {
+  width: min(940px, 95vw);
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 14px 34px rgba(68, 51, 98, 0.22);
+  backdrop-filter: blur(2px);
+  padding: 1.75rem;
 }
 
 header,
 main {
-  width: min(920px, 92vw);
+  width: min(860px, 100%);
   margin: 0 auto;
 }
 
 header {
-  padding-top: 2rem;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 h1,
 h2 {
   font-family: "Showpop", Georgia, serif;
+  color: #6c4b9b;
+  margin-top: 0;
+}
+
+p,
+label,
+input,
+button {
+  font-family: "Almondmilky", Arial, sans-serif;
 }
 
 form,
-#total-output {
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 12px;
+main > section {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #f7eaff;
+  border-radius: 14px;
   padding: 1rem;
+  box-shadow: 0 6px 16px rgba(140, 117, 176, 0.14);
 }
 
 section {
@@ -57,10 +89,44 @@ button {
   display: block;
 }
 
+label {
+  color: #493d66;
+  font-size: 1.05rem;
+}
+
 input,
 button {
   width: 100%;
   margin-top: 0.25rem;
   margin-bottom: 0.75rem;
   padding: 0.6rem;
+  border-radius: 10px;
+  border: 1px solid #d6c8ea;
+}
+
+input {
+  background: #fffcff;
+  color: #2f2540;
+}
+
+button {
+  background: linear-gradient(180deg, #fce6ff 0%, #eddcff 100%);
+  color: #523b7f;
+  font-size: 1.05rem;
+  cursor: pointer;
+  border-color: #d2b8f8;
+}
+
+button:hover {
+  background: linear-gradient(180deg, #ffeefe 0%, #e8d3ff 100%);
+}
+
+#breakdown-output p,
+#total-output {
+  color: #38244d;
+  font-size: 1.1rem;
+}
+
+#total-output {
+  margin: 0;
 }
