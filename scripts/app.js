@@ -13,6 +13,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const spoolRowsEl = document.getElementById("spool-rows");
   const addSpoolButton = document.getElementById("add-spool-button");
+  const spoolSelectionEl = document.getElementById("spool-selection");
+  const pricePerGramInput = document.getElementById("price-per-gram");
+  const filamentGramsInput = document.getElementById("filament-grams");
 
   const parseNumericValue = (value) => {
     const parsedValue = Number.parseFloat(value);
@@ -52,6 +55,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (spoolPriceOutput) {
       spoolPriceOutput.textContent = `$${pricePerGram.toFixed(4)}/g`;
     }
+
+    refreshSpoolSelection();
   };
 
   const createSpoolRow = () => {
@@ -104,8 +109,13 @@ window.addEventListener("DOMContentLoaded", () => {
       updateSpoolRowPrice(spoolRow);
     });
 
+    spoolNameInput.addEventListener("input", () => {
+      refreshSpoolSelection();
+    });
+
     removeButton.addEventListener("click", () => {
       spoolRow.remove();
+      refreshSpoolSelection();
     });
 
     spoolRow.append(
@@ -119,6 +129,7 @@ window.addEventListener("DOMContentLoaded", () => {
       removeButton,
     );
     spoolRowsEl.appendChild(spoolRow);
+    refreshSpoolSelection();
   };
 
   const getSpoolTotals = () => {
@@ -164,6 +175,8 @@ window.addEventListener("DOMContentLoaded", () => {
       const housing = parseNumericValue(housingInput?.value ?? "");
       const utilities = parseNumericValue(utilitiesInput?.value ?? "");
       const food = parseNumericValue(foodInput?.value ?? "");
+      const grams = parseNumericValue(filamentGramsInput?.value ?? "");
+      const pricePerGram = parseNumericValue(pricePerGramInput?.value ?? "");
 
       const totalExpenses = housing + utilities + food;
       const remainingBalance = income - totalExpenses;
