@@ -7,6 +7,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const totalExpensesEl = document.getElementById("total-expenses");
   const remainingBalanceEl = document.getElementById("remaining-balance");
   const totalOutputEl = document.getElementById("total-output");
+  const baseFilamentCostEl = document.getElementById("base-filament-cost");
+  const insuranceAmountEl = document.getElementById("insurance-amount");
+  const totalFilamentCostEl = document.getElementById("total-filament-cost");
 
   const spoolRowsEl = document.getElementById("spool-rows");
   const addSpoolButton = document.getElementById("add-spool-button");
@@ -18,6 +21,26 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     return 0;
+  };
+
+  const formatCurrency = (value) => {
+    return `$${value.toFixed(2)}`;
+  };
+
+  const getInsuranceRate = (grams) => {
+    const safeGrams = Math.max(0, grams);
+    const tenGramBracket = Math.ceil(safeGrams / 10);
+    const boundedBracket = Math.max(1, Math.min(10, tenGramBracket));
+
+    return boundedBracket * 0.05;
+  };
+
+  const calculateFilamentBreakdown = (totalGrams, baseFilamentCost) => {
+    const insuranceRate = getInsuranceRate(totalGrams);
+    const insuranceAmount = baseFilamentCost * insuranceRate;
+    const totalFilamentCost = baseFilamentCost + insuranceAmount;
+
+    return { baseFilamentCost, insuranceAmount, totalFilamentCost };
   };
 
   const updateSpoolRowPrice = (spoolRow) => {
@@ -55,6 +78,15 @@ window.addEventListener("DOMContentLoaded", () => {
     spoolCostInput.className = "spool-cost-input";
     spoolCostInput.placeholder = "0";
 
+    const spoolGramsLabel = document.createElement("label");
+    spoolGramsLabel.textContent = "Grams used in piece";
+
+    const spoolGramsInput = document.createElement("input");
+    spoolGramsInput.type = "number";
+    spoolGramsInput.className = "spool-grams-input";
+    spoolGramsInput.placeholder = "0";
+    spoolGramsInput.step = "0.01";
+
     const spoolPriceLine = document.createElement("p");
     spoolPriceLine.textContent = "Price per gram: ";
 
@@ -76,8 +108,42 @@ window.addEventListener("DOMContentLoaded", () => {
       spoolRow.remove();
     });
 
-    spoolRow.append(spoolNameLabel, spoolNameInput, spoolCostLabel, spoolCostInput, spoolPriceLine, removeButton);
+    spoolRow.append(
+      spoolNameLabel,
+      spoolNameInput,
+      spoolCostLabel,
+      spoolCostInput,
+      spoolGramsLabel,
+      spoolGramsInput,
+      spoolPriceLine,
+      removeButton,
+    );
     spoolRowsEl.appendChild(spoolRow);
+  };
+
+  const getSpoolTotals = () => {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
+    const totals = spoolRows.reduce(
+      (accumulator, spoolRow) => {
+        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
+        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
+        const pricePerGram = spoolCost / 1000;
+
+        return {
+          totalGrams: accumulator.totalGrams + spoolGrams,
+          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+        };
+      },
+      { totalGrams: 0, baseFilamentCost: 0 },
+    );
+
+    return totals;
   };
 
   if (addSpoolButton) {
@@ -102,16 +168,31 @@ window.addEventListener("DOMContentLoaded", () => {
       const totalExpenses = housing + utilities + food;
       const remainingBalance = income - totalExpenses;
 
+      const { totalGrams, baseFilamentCost } = getSpoolTotals();
+      const { insuranceAmount, totalFilamentCost } = calculateFilamentBreakdown(totalGrams, baseFilamentCost);
+
       if (totalExpensesEl) {
-        totalExpensesEl.textContent = `$${totalExpenses.toFixed(2)}`;
+        totalExpensesEl.textContent = formatCurrency(totalExpenses);
       }
 
       if (remainingBalanceEl) {
-        remainingBalanceEl.textContent = `$${remainingBalance.toFixed(2)}`;
+        remainingBalanceEl.textContent = formatCurrency(remainingBalance);
+      }
+
+      if (baseFilamentCostEl) {
+        baseFilamentCostEl.textContent = formatCurrency(baseFilamentCost);
+      }
+
+      if (insuranceAmountEl) {
+        insuranceAmountEl.textContent = formatCurrency(insuranceAmount);
+      }
+
+      if (totalFilamentCostEl) {
+        totalFilamentCostEl.textContent = formatCurrency(totalFilamentCost);
       }
 
       if (totalOutputEl) {
-        totalOutputEl.textContent = `$${remainingBalance.toFixed(2)}`;
+        totalOutputEl.textContent = formatCurrency(remainingBalance + totalFilamentCost);
       }
     });
   }
