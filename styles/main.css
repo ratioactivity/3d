@@ -1,14 +1,13 @@
 @font-face {
   font-family: "Showpop";
-  src: url("/assets/Showpop.ttf") format("truetype");
+  src: url("../assets/Showpop.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Almondmilky";
-  src: url("/assets/Almondmilky.ttf") format("truetype"),
-    url("/assets/AlmondMilky.ttf") format("truetype");
+  src: url("../assets/AlmondMilky.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -21,34 +20,104 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: "Almondmilky", Arial, sans-serif;
-  background: url("/assets/background.png") center / cover no-repeat fixed;
-  color: #111;
+  background: url("../assets/background.png") center / cover no-repeat fixed;
+  color: #2f2540;
+  display: grid;
+  place-items: center;
+  padding: 0.75rem;
+}
+
+.content-panel {
+  width: min(960px, 96vw);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(68, 51, 98, 0.2);
+  backdrop-filter: blur(2px);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.decorative-banner {
+  display: block;
+  width: 442px;
+  height: 72px;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.panel-banner {
+  margin: 0 auto;
+  padding: 0;
+  line-height: 0;
 }
 
 header,
 main {
-  width: min(920px, 92vw);
+  width: min(880px, 100%);
   margin: 0 auto;
 }
 
 header {
-  padding-top: 2rem;
+  text-align: center;
+  margin: 0;
+}
+
+header p {
+  margin: 0;
+  font-size: 0.98rem;
 }
 
 h1,
 h2 {
   font-family: "Showpop", Georgia, serif;
+  color: #6c4b9b;
+  margin: 0;
+  line-height: 1.1;
+}
+
+h1 {
+  font-size: clamp(1.6rem, 2.8vw, 2.25rem);
+}
+
+h2 {
+  font-size: clamp(1.15rem, 1.9vw, 1.4rem);
+  margin-bottom: 0.35rem;
+}
+
+p,
+label,
+input,
+button {
+  font-family: "Almondmilky", Arial, sans-serif;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+  margin-top: 0;
 }
 
 form,
-#total-output {
-  background: rgba(255, 255, 255, 0.85);
+main > section {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #f7eaff;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.7rem;
+  box-shadow: 0 5px 12px rgba(140, 117, 176, 0.12);
+}
+
+form {
+  display: grid;
+  gap: 0.45rem;
 }
 
 section {
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
 label,
@@ -57,10 +126,54 @@ button {
   display: block;
 }
 
+label {
+  color: #493d66;
+  font-size: 1rem;
+  margin-top: 0.2rem;
+}
+
 input,
 button {
   width: 100%;
-  margin-top: 0.25rem;
-  margin-bottom: 0.75rem;
-  padding: 0.6rem;
+  margin-top: 0.16rem;
+  margin-bottom: 0.3rem;
+  padding: 0.46rem 0.55rem;
+  border-radius: 9px;
+  border: 1px solid #d6c8ea;
+  font-size: 0.98rem;
+}
+
+input {
+  background: #fffcff;
+  color: #2f2540;
+}
+
+button {
+  background: linear-gradient(180deg, #fce6ff 0%, #eddcff 100%);
+  color: #523b7f;
+  cursor: pointer;
+  border-color: #d2b8f8;
+  margin-bottom: 0;
+}
+
+button:hover {
+  background: linear-gradient(180deg, #ffeefe 0%, #e8d3ff 100%);
+}
+
+#breakdown-output p,
+#total-output {
+  color: #38244d;
+  font-size: 1rem;
+  margin: 0.2rem 0;
+}
+
+#total-output {
+  margin: 0;
+}
+
+@media (min-width: 860px) {
+  main {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
 }
