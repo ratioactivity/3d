@@ -17,6 +17,27 @@ window.addEventListener("DOMContentLoaded", () => {
   const pricePerGramInput = document.getElementById("price-per-gram");
   const filamentGramsInput = document.getElementById("filament-grams");
 
+
+  const removeLegacyFilamentInputsSection = () => {
+    const legacyByHeadingId = document.getElementById("filament-heading");
+    if (legacyByHeadingId) {
+      const section = legacyByHeadingId.closest("section");
+      if (section) {
+        section.remove();
+      }
+    }
+
+    const legacySelect = document.getElementById("spool-selection");
+    if (legacySelect) {
+      const section = legacySelect.closest("section");
+      if (section) {
+        section.remove();
+      }
+    }
+  };
+
+  removeLegacyFilamentInputsSection();
+
   const parseNumericValue = (value) => {
     const parsedValue = Number.parseFloat(value);
     if (Number.isFinite(parsedValue)) {
@@ -130,6 +151,31 @@ window.addEventListener("DOMContentLoaded", () => {
     );
     spoolRowsEl.appendChild(spoolRow);
     refreshSpoolSelection();
+  };
+
+  const getSpoolTotals = () => {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
+    const totals = spoolRows.reduce(
+      (accumulator, spoolRow) => {
+        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
+        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
+        const pricePerGram = spoolCost / 1000;
+
+        return {
+          totalGrams: accumulator.totalGrams + spoolGrams,
+          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+        };
+      },
+      { totalGrams: 0, baseFilamentCost: 0 },
+    );
+
+    return totals;
   };
 
   const getSpoolTotals = () => {
