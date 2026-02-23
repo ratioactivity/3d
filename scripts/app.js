@@ -1,4 +1,4 @@
-window.addEventListener("DOMContentLoaded", () => {
+ window.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("calculator-form");
   const incomeInput = document.getElementById("income");
   const housingInput = document.getElementById("housing");
@@ -37,6 +37,7 @@ window.addEventListener("DOMContentLoaded", () => {
   };
 
   removeLegacyFilamentInputsSection();
+
 
   const parseNumericValue = (value) => {
     const parsedValue = Number.parseFloat(value);
@@ -151,6 +152,31 @@ window.addEventListener("DOMContentLoaded", () => {
     );
     spoolRowsEl.appendChild(spoolRow);
     refreshSpoolSelection();
+  };
+
+  const getSpoolTotals = () => {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
+    const totals = spoolRows.reduce(
+      (accumulator, spoolRow) => {
+        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
+        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
+        const pricePerGram = spoolCost / 1000;
+
+        return {
+          totalGrams: accumulator.totalGrams + spoolGrams,
+          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+        };
+      },
+      { totalGrams: 0, baseFilamentCost: 0 },
+    );
+
+    return totals;
   };
 
   const getSpoolTotals = () => {
