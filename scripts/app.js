@@ -1,4 +1,4 @@
-window.addEventListener("DOMContentLoaded", () => {
+ window.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("calculator-form");
   const incomeInput = document.getElementById("income");
   const housingInput = document.getElementById("housing");
@@ -13,6 +13,30 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const spoolRowsEl = document.getElementById("spool-rows");
   const addSpoolButton = document.getElementById("add-spool-button");
+  const spoolSelectionEl = document.getElementById("spool-selection");
+  const pricePerGramInput = document.getElementById("price-per-gram");
+  const filamentGramsInput = document.getElementById("filament-grams");
+
+
+  const removeLegacyFilamentInputsSection = () => {
+    const legacyByHeadingId = document.getElementById("filament-heading");
+    if (legacyByHeadingId) {
+      const section = legacyByHeadingId.closest("section");
+      if (section) {
+        section.remove();
+      }
+    }
+
+    const legacySelect = document.getElementById("spool-selection");
+    if (legacySelect) {
+      const section = legacySelect.closest("section");
+      if (section) {
+        section.remove();
+      }
+    }
+  };
+
+  removeLegacyFilamentInputsSection();
 
 
   const parseNumericValue = (value) => {
@@ -53,6 +77,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (spoolPriceOutput) {
       spoolPriceOutput.textContent = `$${pricePerGram.toFixed(4)}/g`;
     }
+
+    refreshSpoolSelection();
   };
 
   const createSpoolRow = () => {
@@ -105,8 +131,13 @@ window.addEventListener("DOMContentLoaded", () => {
       updateSpoolRowPrice(spoolRow);
     });
 
+    spoolNameInput.addEventListener("input", () => {
+      refreshSpoolSelection();
+    });
+
     removeButton.addEventListener("click", () => {
       spoolRow.remove();
+      refreshSpoolSelection();
     });
 
     spoolRow.append(
@@ -120,6 +151,57 @@ window.addEventListener("DOMContentLoaded", () => {
       removeButton,
     );
     spoolRowsEl.appendChild(spoolRow);
+    refreshSpoolSelection();
+  };
+
+  const getSpoolTotals = () => {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
+    const totals = spoolRows.reduce(
+      (accumulator, spoolRow) => {
+        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
+        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
+        const pricePerGram = spoolCost / 1000;
+
+        return {
+          totalGrams: accumulator.totalGrams + spoolGrams,
+          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+        };
+      },
+      { totalGrams: 0, baseFilamentCost: 0 },
+    );
+
+    return totals;
+  };
+
+  const getSpoolTotals = () => {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
+    const totals = spoolRows.reduce(
+      (accumulator, spoolRow) => {
+        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
+        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
+        const pricePerGram = spoolCost / 1000;
+
+        return {
+          totalGrams: accumulator.totalGrams + spoolGrams,
+          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+        };
+      },
+      { totalGrams: 0, baseFilamentCost: 0 },
+    );
+
+    return totals;
   };
 
   const getSpoolTotals = () => {
@@ -165,6 +247,8 @@ window.addEventListener("DOMContentLoaded", () => {
       const housing = parseNumericValue(housingInput?.value ?? "");
       const utilities = parseNumericValue(utilitiesInput?.value ?? "");
       const food = parseNumericValue(foodInput?.value ?? "");
+      const grams = parseNumericValue(filamentGramsInput?.value ?? "");
+      const pricePerGram = parseNumericValue(pricePerGramInput?.value ?? "");
 
       const totalExpenses = housing + utilities + food;
       const remainingBalance = income - totalExpenses;
