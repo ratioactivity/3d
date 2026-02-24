@@ -15,8 +15,8 @@ window.addEventListener("DOMContentLoaded", function () {
   var addSpoolButton = document.getElementById("add-spool-button");
 
   var parseNumericValue = function (value) {
-    var parsedValue = Number.parseFloat(value);
-    if (Number.isFinite(parsedValue)) {
+    var parsedValue = parseFloat(value);
+    if (isFinite(parsedValue)) {
       return parsedValue;
     }
 
@@ -43,7 +43,7 @@ window.addEventListener("DOMContentLoaded", function () {
     return {
       baseFilamentCost: baseFilamentCost,
       insuranceAmount: insuranceAmount,
-      totalFilamentCost: totalFilamentCost,
+      totalFilamentCost: totalFilamentCost
     };
   };
 
@@ -52,7 +52,9 @@ window.addEventListener("DOMContentLoaded", function () {
     for (var i = 0; i < sections.length; i += 1) {
       var heading = sections[i].querySelector("h2");
       if (heading && heading.textContent && heading.textContent.trim() === "Filament Cost Inputs") {
-        sections[i].remove();
+        if (sections[i].parentNode) {
+          sections[i].parentNode.removeChild(sections[i]);
+        }
       }
     }
   };
@@ -122,8 +124,9 @@ window.addEventListener("DOMContentLoaded", function () {
     });
 
     removeButton.addEventListener("click", function () {
-      spoolRow.remove();
-      refreshSpoolSelection();
+      if (spoolRow.parentNode) {
+        spoolRow.parentNode.removeChild(spoolRow);
+      }
     });
 
     spoolRow.appendChild(spoolNameLabel);
@@ -137,31 +140,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
     spoolRowsEl.appendChild(spoolRow);
     refreshSpoolSelection();
-  };
-
-  const getSpoolTotals = () => {
-    if (!spoolRowsEl) {
-      return { totalGrams: 0, baseFilamentCost: 0 };
-    }
-
-    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
-    const totals = spoolRows.reduce(
-      (accumulator, spoolRow) => {
-        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
-        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
-        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
-        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
-        const pricePerGram = spoolCost / 1000;
-
-        return {
-          totalGrams: accumulator.totalGrams + spoolGrams,
-          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
-        };
-      },
-      { totalGrams: 0, baseFilamentCost: 0 },
-    );
-
-    return totals;
   };
 
   const getSpoolTotals = () => {
@@ -264,9 +242,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
       var spoolTotals = getSpoolTotals();
       var filamentBreakdown = calculateFilamentBreakdown(spoolTotals.totalGrams, spoolTotals.baseFilamentCost);
-
-      const { totalGrams, baseFilamentCost } = getSpoolTotals();
-      const { insuranceAmount, totalFilamentCost } = calculateFilamentBreakdown(totalGrams, baseFilamentCost);
 
       if (totalExpensesEl) {
         totalExpensesEl.textContent = formatCurrency(totalExpenses);
