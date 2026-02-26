@@ -1,6 +1,18 @@
 window.addEventListener("DOMContentLoaded", function () {
+  var form = document.getElementById("calculator-form");
   var spoolRowsEl = document.getElementById("spool-rows");
   var addSpoolButton = document.getElementById("add-spool-button");
+
+  var printingHoursInput = document.getElementById("printing-hours");
+  var hoursCostInput = document.getElementById("hours-cost");
+  var additionalLaborInput = document.getElementById("additional-labor");
+
+  var baseFilamentCostEl = document.getElementById("base-filament-cost");
+  var insuranceAmountEl = document.getElementById("insurance-amount");
+  var totalFilamentCostEl = document.getElementById("total-filament-cost");
+  var hoursCostOutputEl = document.getElementById("hours-cost-output");
+  var additionalLaborOutputEl = document.getElementById("additional-labor-output");
+  var totalOutputEl = document.getElementById("total-output");
 
   var parseNumericValue = function (value) {
     var parsedValue = parseFloat(value);
@@ -9,6 +21,45 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     return 0;
+  };
+
+  var formatCurrency = function (value) {
+    return "$" + value.toFixed(2);
+  };
+
+  var getInsuranceRate = function (grams) {
+    var safeGrams = Math.max(0, grams);
+    var tenGramBracket = Math.ceil(safeGrams / 10);
+    var boundedBracket = Math.max(1, Math.min(10, tenGramBracket));
+
+    return boundedBracket * 0.05;
+  };
+
+  var calculateFilamentBreakdown = function (totalGrams, baseFilamentCost) {
+    var insuranceRate = getInsuranceRate(totalGrams);
+    var insuranceAmount = baseFilamentCost * insuranceRate;
+    var totalFilamentCost = baseFilamentCost + insuranceAmount;
+
+    return {
+      baseFilamentCost: baseFilamentCost,
+      insuranceAmount: insuranceAmount,
+      totalFilamentCost: totalFilamentCost,
+    };
+  };
+
+  var getHoursCost = function () {
+    var hours = parseNumericValue(printingHoursInput ? printingHoursInput.value : "");
+    var hoursCost = hours * 1;
+
+    return hoursCost;
+  };
+
+  var updateHoursCostField = function () {
+    var hoursCost = getHoursCost();
+
+    if (hoursCostInput) {
+      hoursCostInput.value = hoursCost.toFixed(2);
+    }
   };
 
   var updateSpoolRowPrice = function (spoolRow) {
@@ -20,8 +71,6 @@ window.addEventListener("DOMContentLoaded", function () {
     if (spoolPriceOutput) {
       spoolPriceOutput.textContent = "$" + pricePerGram.toFixed(4) + "/g";
     }
-
-    refreshSpoolSelection();
   };
 
   var createSpoolRow = function () {
@@ -90,7 +139,28 @@ window.addEventListener("DOMContentLoaded", function () {
     spoolRow.appendChild(removeButton);
 
     spoolRowsEl.appendChild(spoolRow);
-    refreshSpoolSelection();
+  };
+
+  var getSpoolTotals = function () {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    var spoolRows = Array.prototype.slice.call(spoolRowsEl.querySelectorAll(".spool-row"));
+    var totals = spoolRows.reduce(function (accumulator, spoolRow) {
+      var spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+      var spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+      var spoolCost = parseNumericValue(spoolCostInput ? spoolCostInput.value : "");
+      var spoolGrams = parseNumericValue(spoolGramsInput ? spoolGramsInput.value : "");
+      var pricePerGram = spoolCost / 1000;
+
+      return {
+        totalGrams: accumulator.totalGrams + spoolGrams,
+        baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+      };
+    }, { totalGrams: 0, baseFilamentCost: 0 });
+
+    return totals;
   };
 
   if (addSpoolButton) {
@@ -99,31 +169,57 @@ window.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
-    const totals = spoolRows.reduce(
-      (accumulator, spoolRow) => {
-        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
-        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
-        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
-        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
-        const pricePerGram = spoolCost / 1000;
+  if (printingHoursInput) {
+    printingHoursInput.addEventListener("input", function () {
+      updateHoursCostField();
+    });
+  }
 
-        return {
-          totalGrams: accumulator.totalGrams + spoolGrams,
-          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
-        };
-      },
-      { totalGrams: 0, baseFilamentCost: 0 },
-    );
+  if (spoolRowsEl && spoolRowsEl.children.length === 0) {
+    createSpoolRow();
+  }
 
-    return totals;
-  };
+  updateHoursCostField();
 
-  const getSpoolTotals = () => {
-    if (!spoolRowsEl) {
-      return { totalGrams: 0, baseFilamentCost: 0 };
-    }
+  if (form) {
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
 
-  window.__spoolsInitDone = true;
+      var spoolTotals = getSpoolTotals();
+      var filamentBreakdown = calculateFilamentBreakdown(spoolTotals.totalGrams, spoolTotals.baseFilamentCost);
+      var hoursCost = getHoursCost();
+      var additionalLabor = parseNumericValue(additionalLaborInput ? additionalLaborInput.value : "");
+      var finalTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor;
+
+      if (hoursCostInput) {
+        hoursCostInput.value = hoursCost.toFixed(2);
+      }
+
+      if (baseFilamentCostEl) {
+        baseFilamentCostEl.textContent = formatCurrency(filamentBreakdown.baseFilamentCost);
+      }
+
+      if (insuranceAmountEl) {
+        insuranceAmountEl.textContent = formatCurrency(filamentBreakdown.insuranceAmount);
+      }
+
+      if (totalFilamentCostEl) {
+        totalFilamentCostEl.textContent = formatCurrency(filamentBreakdown.totalFilamentCost);
+      }
+
+      if (hoursCostOutputEl) {
+        hoursCostOutputEl.textContent = formatCurrency(hoursCost);
+      }
+
+      if (additionalLaborOutputEl) {
+        additionalLaborOutputEl.textContent = formatCurrency(additionalLabor);
+      }
+
+      if (totalOutputEl) {
+        totalOutputEl.textContent = formatCurrency(finalTotal);
+      }
+    });
+  }
+
   console.log("✅ script validated");
 });
