@@ -20,6 +20,8 @@ window.addEventListener("DOMContentLoaded", function () {
     if (spoolPriceOutput) {
       spoolPriceOutput.textContent = "$" + pricePerGram.toFixed(4) + "/g";
     }
+
+    refreshSpoolSelection();
   };
 
   var createSpoolRow = function () {
@@ -88,7 +90,84 @@ window.addEventListener("DOMContentLoaded", function () {
     spoolRow.appendChild(removeButton);
 
     spoolRowsEl.appendChild(spoolRow);
+    refreshSpoolSelection();
   };
+
+  const getSpoolTotals = () => {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
+    const totals = spoolRows.reduce(
+      (accumulator, spoolRow) => {
+        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
+        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
+        const pricePerGram = spoolCost / 1000;
+
+        return {
+          totalGrams: accumulator.totalGrams + spoolGrams,
+          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+        };
+      },
+      { totalGrams: 0, baseFilamentCost: 0 },
+    );
+
+    return totals;
+  };
+
+  const getSpoolTotals = () => {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
+    const totals = spoolRows.reduce(
+      (accumulator, spoolRow) => {
+        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
+        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
+        const pricePerGram = spoolCost / 1000;
+
+        return {
+          totalGrams: accumulator.totalGrams + spoolGrams,
+          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+        };
+      },
+      { totalGrams: 0, baseFilamentCost: 0 },
+    );
+
+    return totals;
+  };
+
+  var getSpoolTotals = function () {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
+
+    var spoolRows = spoolRowsEl.querySelectorAll(".spool-row");
+    var totalGrams = 0;
+    var baseFilamentCost = 0;
+
+    for (var i = 0; i < spoolRows.length; i += 1) {
+      var spoolCostInput = spoolRows[i].querySelector(".spool-cost-input");
+      var spoolGramsInput = spoolRows[i].querySelector(".spool-grams-input");
+
+      var spoolCost = parseNumericValue(spoolCostInput ? spoolCostInput.value : "");
+      var spoolGrams = parseNumericValue(spoolGramsInput ? spoolGramsInput.value : "");
+      var pricePerGram = spoolCost / 1000;
+
+      totalGrams += spoolGrams;
+      baseFilamentCost += spoolGrams * pricePerGram;
+    }
+
+    return { totalGrams: totalGrams, baseFilamentCost: baseFilamentCost };
+  };
+
+  removeLegacyFilamentCostSection();
 
   if (addSpoolButton) {
     addSpoolButton.addEventListener("click", function () {
