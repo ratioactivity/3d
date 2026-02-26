@@ -20,6 +20,8 @@ window.addEventListener("DOMContentLoaded", function () {
     if (spoolPriceOutput) {
       spoolPriceOutput.textContent = "$" + pricePerGram.toFixed(4) + "/g";
     }
+
+    refreshSpoolSelection();
   };
 
   var createSpoolRow = function () {
@@ -88,6 +90,7 @@ window.addEventListener("DOMContentLoaded", function () {
     spoolRow.appendChild(removeButton);
 
     spoolRowsEl.appendChild(spoolRow);
+    refreshSpoolSelection();
   };
 
   if (addSpoolButton) {
@@ -96,9 +99,30 @@ window.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (spoolRowsEl && spoolRowsEl.children.length === 0) {
-    createSpoolRow();
-  }
+    const spoolRows = Array.from(spoolRowsEl.querySelectorAll(".spool-row"));
+    const totals = spoolRows.reduce(
+      (accumulator, spoolRow) => {
+        const spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        const spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+        const spoolCost = parseNumericValue(spoolCostInput?.value ?? "");
+        const spoolGrams = parseNumericValue(spoolGramsInput?.value ?? "");
+        const pricePerGram = spoolCost / 1000;
+
+        return {
+          totalGrams: accumulator.totalGrams + spoolGrams,
+          baseFilamentCost: accumulator.baseFilamentCost + spoolGrams * pricePerGram,
+        };
+      },
+      { totalGrams: 0, baseFilamentCost: 0 },
+    );
+
+    return totals;
+  };
+
+  const getSpoolTotals = () => {
+    if (!spoolRowsEl) {
+      return { totalGrams: 0, baseFilamentCost: 0 };
+    }
 
   window.__spoolsInitDone = true;
   console.log("✅ script validated");
