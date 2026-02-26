@@ -26,6 +26,68 @@
       <img class="decorative-banner panel-banner" src="assets/banner.png" alt="" aria-hidden="true" width="442" height="72" />
     </div>
 
-    <script src="scripts/app.js"></script>
+    <script src="scripts/app.js?v=20260225"></script>
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (window.__spoolsInitDone) {
+          return;
+        }
+
+        var spoolRowsEl = document.getElementById("spool-rows");
+        var addSpoolButton = document.getElementById("add-spool-button");
+
+        var legacyHeadings = document.querySelectorAll("section h2");
+        for (var i = 0; i < legacyHeadings.length; i += 1) {
+          if (legacyHeadings[i].textContent && legacyHeadings[i].textContent.trim() === "Filament Cost Inputs") {
+            var legacySection = legacyHeadings[i];
+            while (legacySection && legacySection.tagName !== "SECTION") {
+              legacySection = legacySection.parentNode;
+            }
+            if (legacySection && legacySection.parentNode) {
+              legacySection.parentNode.removeChild(legacySection);
+            }
+          }
+        }
+
+        if (!spoolRowsEl || !addSpoolButton) {
+          return;
+        }
+
+        var addRow = function () {
+          var row = document.createElement("div");
+          row.className = "spool-row";
+
+          var cost = document.createElement("input");
+          cost.type = "number";
+          cost.className = "spool-cost-input";
+          cost.placeholder = "0";
+
+          var priceLine = document.createElement("p");
+          priceLine.textContent = "Price per gram: ";
+
+          var price = document.createElement("span");
+          price.className = "spool-price-output";
+          price.textContent = "$0.0000/g";
+          priceLine.appendChild(price);
+
+          cost.addEventListener("input", function () {
+            var spoolCost = parseFloat(cost.value);
+            if (!isFinite(spoolCost)) {
+              spoolCost = 0;
+            }
+            price.textContent = "$" + (spoolCost / 1000).toFixed(4) + "/g";
+          });
+
+          row.appendChild(cost);
+          row.appendChild(priceLine);
+          spoolRowsEl.appendChild(row);
+        };
+
+        addSpoolButton.onclick = addRow;
+        if (spoolRowsEl.children.length === 0) {
+          addRow();
+        }
+      });
+    </script>
   </body>
 </html>
