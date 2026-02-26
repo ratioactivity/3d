@@ -12,82 +12,52 @@
 
       <header>
         <h1>Spools</h1>
-        <p>Add spool details for your print.</p>
+        <p>Add spool details and labor costs for your print.</p>
       </header>
 
       <main>
-        <section aria-labelledby="spools-heading">
-          <h2 id="spools-heading">Spools</h2>
-          <div id="spool-rows" aria-live="polite"></div>
-          <button id="add-spool-button" type="button">Add spool</button>
+        <form id="calculator-form">
+          <section aria-labelledby="spools-heading">
+            <h2 id="spools-heading">Spools</h2>
+            <div id="spool-rows" aria-live="polite"></div>
+            <button id="add-spool-button" type="button">Add spool</button>
+          </section>
+
+          <section aria-labelledby="labor-heading">
+            <h2 id="labor-heading">Labor</h2>
+            <label for="printing-hours">Printing hours</label>
+            <input id="printing-hours" name="printing-hours" type="number" placeholder="0" step="0.01" min="0" />
+
+            <label for="hours-cost">Hours cost</label>
+            <input id="hours-cost" name="hours-cost" type="number" placeholder="0" step="0.01" readonly />
+
+            <label for="additional-labor">Additional labor cost</label>
+            <input id="additional-labor" name="additional-labor" type="number" placeholder="0" step="0.01" min="0" />
+          </section>
+
+          <section aria-labelledby="breakdown-heading">
+            <h2 id="breakdown-heading">Breakdown</h2>
+            <div id="breakdown-output" aria-live="polite">
+              <p>Base Filament Cost: <span id="base-filament-cost">$0.00</span></p>
+              <p>Insurance Amount: <span id="insurance-amount">$0.00</span></p>
+              <p>Total Filament Cost: <span id="total-filament-cost">$0.00</span></p>
+              <p>Hours Cost: <span id="hours-cost-output">$0.00</span></p>
+              <p>Additional Labor: <span id="additional-labor-output">$0.00</span></p>
+            </div>
+          </section>
+
+          <button id="calculate-button" type="submit">Calculate Total</button>
+        </form>
+
+        <section aria-labelledby="total-heading">
+          <h2 id="total-heading">Total Output</h2>
+          <p id="total-output" aria-live="polite">$0.00</p>
         </section>
       </main>
 
       <img class="decorative-banner panel-banner" src="assets/banner.png" alt="" aria-hidden="true" width="442" height="72" />
     </div>
 
-    <script src="scripts/app.js?v=20260225"></script>
-    <script>
-      window.addEventListener("DOMContentLoaded", function () {
-        if (window.__spoolsInitDone) {
-          return;
-        }
-
-        var spoolRowsEl = document.getElementById("spool-rows");
-        var addSpoolButton = document.getElementById("add-spool-button");
-
-        var legacyHeadings = document.querySelectorAll("section h2");
-        for (var i = 0; i < legacyHeadings.length; i += 1) {
-          if (legacyHeadings[i].textContent && legacyHeadings[i].textContent.trim() === "Filament Cost Inputs") {
-            var legacySection = legacyHeadings[i];
-            while (legacySection && legacySection.tagName !== "SECTION") {
-              legacySection = legacySection.parentNode;
-            }
-            if (legacySection && legacySection.parentNode) {
-              legacySection.parentNode.removeChild(legacySection);
-            }
-          }
-        }
-
-        if (!spoolRowsEl || !addSpoolButton) {
-          return;
-        }
-
-        var addRow = function () {
-          var row = document.createElement("div");
-          row.className = "spool-row";
-
-          var cost = document.createElement("input");
-          cost.type = "number";
-          cost.className = "spool-cost-input";
-          cost.placeholder = "0";
-
-          var priceLine = document.createElement("p");
-          priceLine.textContent = "Price per gram: ";
-
-          var price = document.createElement("span");
-          price.className = "spool-price-output";
-          price.textContent = "$0.0000/g";
-          priceLine.appendChild(price);
-
-          cost.addEventListener("input", function () {
-            var spoolCost = parseFloat(cost.value);
-            if (!isFinite(spoolCost)) {
-              spoolCost = 0;
-            }
-            price.textContent = "$" + (spoolCost / 1000).toFixed(4) + "/g";
-          });
-
-          row.appendChild(cost);
-          row.appendChild(priceLine);
-          spoolRowsEl.appendChild(row);
-        };
-
-        addSpoolButton.onclick = addRow;
-        if (spoolRowsEl.children.length === 0) {
-          addRow();
-        }
-      });
-    </script>
+    <script src="scripts/app.js?v=20260226"></script>
   </body>
 </html>
