@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cost Breakdown Calculator</title>
+    <title>Spools</title>
     <link rel="stylesheet" href="styles/main.css" />
   </head>
   <body>
@@ -11,68 +11,15 @@
       <img class="decorative-banner panel-banner" src="assets/banner.png" alt="" aria-hidden="true" width="442" height="72" />
 
       <header>
-        <h1>Cost Breakdown Calculator</h1>
-        <p>Fill in each section and calculate your total.</p>
+        <h1>Spools</h1>
+        <p>Add spool details for your print.</p>
       </header>
 
       <main>
-        <form id="calculator-form">
-          <section aria-labelledby="income-heading">
-            <h2 id="income-heading">Income</h2>
-            <label for="income">Monthly Income</label>
-            <input id="income" name="income" type="number" placeholder="0" />
-          </section>
-
-          <section aria-labelledby="expenses-heading">
-            <h2 id="expenses-heading">Expenses</h2>
-            <label for="housing">Housing</label>
-            <input id="housing" name="housing" type="number" placeholder="0" />
-
-            <label for="utilities">Utilities</label>
-            <input id="utilities" name="utilities" type="number" placeholder="0" />
-
-            <label for="food">Food</label>
-            <input id="food" name="food" type="number" placeholder="0" />
-          </section>
-
-          <section aria-labelledby="spools-heading">
-            <h2 id="spools-heading">Spools</h2>
-            <div id="spool-rows" aria-live="polite"></div>
-            <button id="add-spool-button" type="button">Add spool</button>
-          </section>
-
-          <section aria-labelledby="filament-heading">
-            <h2 id="filament-heading">Filament Cost Inputs</h2>
-
-            <label for="spool-selection">Select spool (optional)</label>
-            <select id="spool-selection" name="spool-selection">
-              <option value="">Manual entry</option>
-            </select>
-
-            <label for="price-per-gram">Price per gram</label>
-            <input id="price-per-gram" name="price-per-gram" type="number" step="0.0001" placeholder="0.0000" />
-
-            <label for="filament-grams">Filament grams</label>
-            <input id="filament-grams" name="filament-grams" type="number" step="0.01" placeholder="0" />
-          </section>
-
-          <section aria-labelledby="breakdown-heading">
-            <h2 id="breakdown-heading">Breakdown</h2>
-            <div id="breakdown-output" aria-live="polite">
-              <p>Total Expenses: <span id="total-expenses">$0.00</span></p>
-              <p>Remaining Balance: <span id="remaining-balance">$0.00</span></p>
-              <p>Base Filament Cost: <span id="base-filament-cost">$0.00</span></p>
-              <p>Insurance Amount: <span id="insurance-amount">$0.00</span></p>
-              <p>Total Filament Cost: <span id="total-filament-cost">$0.00</span></p>
-            </div>
-          </section>
-
-          <button id="calculate-button" type="submit">Calculate Total</button>
-        </form>
-
-        <section aria-labelledby="total-heading">
-          <h2 id="total-heading">Total Output</h2>
-          <p id="total-output" aria-live="polite">$0.00</p>
+        <section aria-labelledby="spools-heading">
+          <h2 id="spools-heading">Spools</h2>
+          <div id="spool-rows" aria-live="polite"></div>
+          <button id="add-spool-button" type="button">Add spool</button>
         </section>
       </main>
 

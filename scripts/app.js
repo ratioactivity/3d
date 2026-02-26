@@ -1,16 +1,4 @@
 window.addEventListener("DOMContentLoaded", function () {
-  var form = document.getElementById("calculator-form");
-  var incomeInput = document.getElementById("income");
-  var housingInput = document.getElementById("housing");
-  var utilitiesInput = document.getElementById("utilities");
-  var foodInput = document.getElementById("food");
-  var totalExpensesEl = document.getElementById("total-expenses");
-  var remainingBalanceEl = document.getElementById("remaining-balance");
-  var totalOutputEl = document.getElementById("total-output");
-  var baseFilamentCostEl = document.getElementById("base-filament-cost");
-  var insuranceAmountEl = document.getElementById("insurance-amount");
-  var totalFilamentCostEl = document.getElementById("total-filament-cost");
-
   var spoolRowsEl = document.getElementById("spool-rows");
   var addSpoolButton = document.getElementById("add-spool-button");
 
@@ -23,47 +11,10 @@ window.addEventListener("DOMContentLoaded", function () {
     return 0;
   };
 
-  var formatCurrency = function (value) {
-    return "$" + value.toFixed(2);
-  };
-
-  var getInsuranceRate = function (grams) {
-    var safeGrams = Math.max(0, grams);
-    var tenGramBracket = Math.ceil(safeGrams / 10);
-    var boundedBracket = Math.max(1, Math.min(10, tenGramBracket));
-
-    return boundedBracket * 0.05;
-  };
-
-  var calculateFilamentBreakdown = function (totalGrams, baseFilamentCost) {
-    var insuranceRate = getInsuranceRate(totalGrams);
-    var insuranceAmount = baseFilamentCost * insuranceRate;
-    var totalFilamentCost = baseFilamentCost + insuranceAmount;
-
-    return {
-      baseFilamentCost: baseFilamentCost,
-      insuranceAmount: insuranceAmount,
-      totalFilamentCost: totalFilamentCost
-    };
-  };
-
-  var removeLegacyFilamentCostSection = function () {
-    var sections = document.querySelectorAll("section");
-    for (var i = 0; i < sections.length; i += 1) {
-      var heading = sections[i].querySelector("h2");
-      if (heading && heading.textContent && heading.textContent.trim() === "Filament Cost Inputs") {
-        if (sections[i].parentNode) {
-          sections[i].parentNode.removeChild(sections[i]);
-        }
-      }
-    }
-  };
-
   var updateSpoolRowPrice = function (spoolRow) {
     var spoolCostInput = spoolRow.querySelector(".spool-cost-input");
     var spoolPriceOutput = spoolRow.querySelector(".spool-price-output");
-    var spoolCostValue = spoolCostInput ? spoolCostInput.value : "";
-    var spoolCost = parseNumericValue(spoolCostValue);
+    var spoolCost = parseNumericValue(spoolCostInput ? spoolCostInput.value : "");
     var pricePerGram = spoolCost / 1000;
 
     if (spoolPriceOutput) {
@@ -226,47 +177,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
   if (spoolRowsEl && spoolRowsEl.children.length === 0) {
     createSpoolRow();
-  }
-
-  if (form) {
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      var income = parseNumericValue(incomeInput ? incomeInput.value : "");
-      var housing = parseNumericValue(housingInput ? housingInput.value : "");
-      var utilities = parseNumericValue(utilitiesInput ? utilitiesInput.value : "");
-      var food = parseNumericValue(foodInput ? foodInput.value : "");
-
-      var totalExpenses = housing + utilities + food;
-      var remainingBalance = income - totalExpenses;
-
-      var spoolTotals = getSpoolTotals();
-      var filamentBreakdown = calculateFilamentBreakdown(spoolTotals.totalGrams, spoolTotals.baseFilamentCost);
-
-      if (totalExpensesEl) {
-        totalExpensesEl.textContent = formatCurrency(totalExpenses);
-      }
-
-      if (remainingBalanceEl) {
-        remainingBalanceEl.textContent = formatCurrency(remainingBalance);
-      }
-
-      if (baseFilamentCostEl) {
-        baseFilamentCostEl.textContent = formatCurrency(filamentBreakdown.baseFilamentCost);
-      }
-
-      if (insuranceAmountEl) {
-        insuranceAmountEl.textContent = formatCurrency(filamentBreakdown.insuranceAmount);
-      }
-
-      if (totalFilamentCostEl) {
-        totalFilamentCostEl.textContent = formatCurrency(filamentBreakdown.totalFilamentCost);
-      }
-
-      if (totalOutputEl) {
-        totalOutputEl.textContent = formatCurrency(remainingBalance + filamentBreakdown.totalFilamentCost);
-      }
-    });
   }
 
   console.log("✅ script validated");
