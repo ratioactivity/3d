@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cost Breakdown Calculator</title>
+    <title>Spools</title>
     <link rel="stylesheet" href="styles/main.css" />
   </head>
   <body>
@@ -11,56 +11,83 @@
       <img class="decorative-banner panel-banner" src="assets/banner.png" alt="" aria-hidden="true" width="442" height="72" />
 
       <header>
-        <h1>Cost Breakdown Calculator</h1>
-        <p>Fill in each section and calculate your total.</p>
+        <h1>Spools</h1>
+        <p>Add spool details for your print.</p>
       </header>
 
       <main>
-        <form id="calculator-form">
-          <section aria-labelledby="income-heading">
-            <h2 id="income-heading">Income</h2>
-            <label for="income">Monthly Income</label>
-            <input id="income" name="income" type="number" placeholder="0" />
-          </section>
-
-          <section aria-labelledby="expenses-heading">
-            <h2 id="expenses-heading">Expenses</h2>
-            <label for="housing">Housing</label>
-            <input id="housing" name="housing" type="number" placeholder="0" />
-
-            <label for="utilities">Utilities</label>
-            <input id="utilities" name="utilities" type="number" placeholder="0" />
-
-            <label for="food">Food</label>
-            <input id="food" name="food" type="number" placeholder="0" />
-          </section>
-
-          <section aria-labelledby="spools-heading">
-            <h2 id="spools-heading">Spools</h2>
-            <div id="spool-rows" aria-live="polite"></div>
-            <button id="add-spool-button" type="button">Add spool</button>
-          </section>
-
-          <section aria-labelledby="breakdown-heading">
-            <h2 id="breakdown-heading">Breakdown</h2>
-            <div id="breakdown-output" aria-live="polite">
-              <p>Total Expenses: <span id="total-expenses">$0.00</span></p>
-              <p>Remaining Balance: <span id="remaining-balance">$0.00</span></p>
-            </div>
-          </section>
-
-          <button id="calculate-button" type="submit">Calculate Total</button>
-        </form>
-
-        <section aria-labelledby="total-heading">
-          <h2 id="total-heading">Total Output</h2>
-          <p id="total-output" aria-live="polite">$0.00</p>
+        <section aria-labelledby="spools-heading">
+          <h2 id="spools-heading">Spools</h2>
+          <div id="spool-rows" aria-live="polite"></div>
+          <button id="add-spool-button" type="button">Add spool</button>
         </section>
       </main>
 
       <img class="decorative-banner panel-banner" src="assets/banner.png" alt="" aria-hidden="true" width="442" height="72" />
     </div>
 
-    <script src="scripts/app.js"></script>
+    <script src="scripts/app.js?v=20260225"></script>
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        if (window.__spoolsInitDone) {
+          return;
+        }
+
+        var spoolRowsEl = document.getElementById("spool-rows");
+        var addSpoolButton = document.getElementById("add-spool-button");
+
+        var legacyHeadings = document.querySelectorAll("section h2");
+        for (var i = 0; i < legacyHeadings.length; i += 1) {
+          if (legacyHeadings[i].textContent && legacyHeadings[i].textContent.trim() === "Filament Cost Inputs") {
+            var legacySection = legacyHeadings[i];
+            while (legacySection && legacySection.tagName !== "SECTION") {
+              legacySection = legacySection.parentNode;
+            }
+            if (legacySection && legacySection.parentNode) {
+              legacySection.parentNode.removeChild(legacySection);
+            }
+          }
+        }
+
+        if (!spoolRowsEl || !addSpoolButton) {
+          return;
+        }
+
+        var addRow = function () {
+          var row = document.createElement("div");
+          row.className = "spool-row";
+
+          var cost = document.createElement("input");
+          cost.type = "number";
+          cost.className = "spool-cost-input";
+          cost.placeholder = "0";
+
+          var priceLine = document.createElement("p");
+          priceLine.textContent = "Price per gram: ";
+
+          var price = document.createElement("span");
+          price.className = "spool-price-output";
+          price.textContent = "$0.0000/g";
+          priceLine.appendChild(price);
+
+          cost.addEventListener("input", function () {
+            var spoolCost = parseFloat(cost.value);
+            if (!isFinite(spoolCost)) {
+              spoolCost = 0;
+            }
+            price.textContent = "$" + (spoolCost / 1000).toFixed(4) + "/g";
+          });
+
+          row.appendChild(cost);
+          row.appendChild(priceLine);
+          spoolRowsEl.appendChild(row);
+        };
+
+        addSpoolButton.onclick = addRow;
+        if (spoolRowsEl.children.length === 0) {
+          addRow();
+        }
+      });
+    </script>
   </body>
 </html>
