@@ -91,6 +91,7 @@ h2 {
 p,
 label,
 input,
+select,
 button {
   font-family: "Almondmilky", Arial, sans-serif;
 }
@@ -122,6 +123,7 @@ section {
 
 label,
 input,
+select,
 button {
   display: block;
 }
@@ -133,6 +135,7 @@ label {
 }
 
 input,
+select,
 button {
   width: 100%;
   margin-top: 0.16rem;
