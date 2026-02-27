@@ -6,12 +6,16 @@ window.addEventListener("DOMContentLoaded", function () {
   var printingHoursInput = document.getElementById("printing-hours");
   var hoursCostInput = document.getElementById("hours-cost");
   var additionalLaborInput = document.getElementById("additional-labor");
+  var roundingRuleInput = document.getElementById("rounding-rule");
 
+  var pricePerGramUsedEl = document.getElementById("price-per-gram-used");
   var baseFilamentCostEl = document.getElementById("base-filament-cost");
-  var insuranceAmountEl = document.getElementById("insurance-amount");
+  var insuranceRateAmountEl = document.getElementById("insurance-rate-amount");
   var totalFilamentCostEl = document.getElementById("total-filament-cost");
   var hoursCostOutputEl = document.getElementById("hours-cost-output");
   var additionalLaborOutputEl = document.getElementById("additional-labor-output");
+  var rawSubtotalOutputEl = document.getElementById("raw-subtotal-output");
+  var roundedFinalTotalOutputEl = document.getElementById("rounded-final-total-output");
   var totalOutputEl = document.getElementById("total-output");
 
   var parseNumericValue = function (value) {
@@ -35,13 +39,28 @@ window.addEventListener("DOMContentLoaded", function () {
     return boundedBracket * 0.05;
   };
 
+  var applyRoundingRule = function (amount, roundingRule) {
+    if (roundingRule === "up") {
+      return Math.ceil(amount);
+    }
+
+    if (roundingRule === "down") {
+      return Math.floor(amount);
+    }
+
+    return Math.round(amount);
+  };
+
   var calculateFilamentBreakdown = function (totalGrams, baseFilamentCost) {
     var insuranceRate = getInsuranceRate(totalGrams);
     var insuranceAmount = baseFilamentCost * insuranceRate;
     var totalFilamentCost = baseFilamentCost + insuranceAmount;
+    var pricePerGramUsed = totalGrams > 0 ? baseFilamentCost / totalGrams : 0;
 
     return {
+      pricePerGramUsed: pricePerGramUsed,
       baseFilamentCost: baseFilamentCost,
+      insuranceRate: insuranceRate,
       insuranceAmount: insuranceAmount,
       totalFilamentCost: totalFilamentCost,
     };
@@ -189,18 +208,24 @@ window.addEventListener("DOMContentLoaded", function () {
       var filamentBreakdown = calculateFilamentBreakdown(spoolTotals.totalGrams, spoolTotals.baseFilamentCost);
       var hoursCost = getHoursCost();
       var additionalLabor = parseNumericValue(additionalLaborInput ? additionalLaborInput.value : "");
-      var finalTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor;
+      var rawTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor;
+      var roundingRule = roundingRuleInput ? roundingRuleInput.value : "nearest";
+      var finalTotal = applyRoundingRule(rawTotal, roundingRule);
 
       if (hoursCostInput) {
         hoursCostInput.value = hoursCost.toFixed(2);
+      }
+
+      if (pricePerGramUsedEl) {
+        pricePerGramUsedEl.textContent = "$" + filamentBreakdown.pricePerGramUsed.toFixed(4);
       }
 
       if (baseFilamentCostEl) {
         baseFilamentCostEl.textContent = formatCurrency(filamentBreakdown.baseFilamentCost);
       }
 
-      if (insuranceAmountEl) {
-        insuranceAmountEl.textContent = formatCurrency(filamentBreakdown.insuranceAmount);
+      if (insuranceRateAmountEl) {
+        insuranceRateAmountEl.textContent = (filamentBreakdown.insuranceRate * 100).toFixed(2) + "% / " + formatCurrency(filamentBreakdown.insuranceAmount);
       }
 
       if (totalFilamentCostEl) {
@@ -213,6 +238,14 @@ window.addEventListener("DOMContentLoaded", function () {
 
       if (additionalLaborOutputEl) {
         additionalLaborOutputEl.textContent = formatCurrency(additionalLabor);
+      }
+
+      if (rawSubtotalOutputEl) {
+        rawSubtotalOutputEl.textContent = formatCurrency(rawTotal);
+      }
+
+      if (roundedFinalTotalOutputEl) {
+        roundedFinalTotalOutputEl.textContent = formatCurrency(finalTotal);
       }
 
       if (totalOutputEl) {

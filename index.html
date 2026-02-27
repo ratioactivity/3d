@@ -33,16 +33,26 @@
 
             <label for="additional-labor">Additional labor cost</label>
             <input id="additional-labor" name="additional-labor" type="number" placeholder="0" step="0.01" min="0" />
+
+            <label for="rounding-rule">Rounding rule</label>
+            <select id="rounding-rule" name="rounding-rule">
+              <option value="nearest">Nearest</option>
+              <option value="up">Up</option>
+              <option value="down">Down</option>
+            </select>
           </section>
 
           <section aria-labelledby="breakdown-heading">
             <h2 id="breakdown-heading">Breakdown</h2>
             <div id="breakdown-output" aria-live="polite">
+              <p>Price Per Gram Used: <span id="price-per-gram-used">$0.0000</span></p>
               <p>Base Filament Cost: <span id="base-filament-cost">$0.00</span></p>
-              <p>Insurance Amount: <span id="insurance-amount">$0.00</span></p>
+              <p>Insurance Rate/Amount: <span id="insurance-rate-amount">0.00% / $0.00</span></p>
               <p>Total Filament Cost: <span id="total-filament-cost">$0.00</span></p>
               <p>Hours Cost: <span id="hours-cost-output">$0.00</span></p>
               <p>Additional Labor: <span id="additional-labor-output">$0.00</span></p>
+              <p>Raw Subtotal: <span id="raw-subtotal-output">$0.00</span></p>
+              <p>Rounded Final Total: <span id="rounded-final-total-output">$0.00</span></p>
             </div>
           </section>
 
