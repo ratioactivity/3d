@@ -17,6 +17,18 @@ window.addEventListener("DOMContentLoaded", function () {
   var rawSubtotalOutputEl = document.getElementById("raw-subtotal-output");
   var roundedFinalTotalOutputEl = document.getElementById("rounded-final-total-output");
   var totalOutputEl = document.getElementById("total-output");
+  var rewardContainerEl = document.getElementById("reward-container");
+  var rewardImageEl = document.getElementById("reward-image");
+
+  var rewardAssets = [
+    "/assets/roach.gif",
+    "/assets/blahaj.gif",
+    "/assets/cat.gif",
+    "/assets/paste.gif",
+    "/assets/fishman.png",
+    "/assets/fox.png",
+  ];
+  var rewardHideTimeoutId = null;
 
   var parseNumericValue = function (value) {
     var parsedValue = parseFloat(value);
@@ -182,6 +194,40 @@ window.addEventListener("DOMContentLoaded", function () {
     return totals;
   };
 
+  var hideRewardAsset = function () {
+    if (rewardContainerEl) {
+      rewardContainerEl.hidden = true;
+      rewardContainerEl.setAttribute("aria-hidden", "true");
+    }
+
+    if (rewardImageEl) {
+      rewardImageEl.removeAttribute("src");
+    }
+  };
+
+  var showRandomRewardAsset = function () {
+    if (!rewardContainerEl || !rewardImageEl || rewardAssets.length === 0) {
+      return;
+    }
+
+    var randomIndex = Math.floor(Math.random() * rewardAssets.length);
+    var randomAsset = rewardAssets[randomIndex];
+    var displayDuration = 2000 + Math.floor(Math.random() * 2001);
+
+    rewardImageEl.src = randomAsset;
+    rewardContainerEl.hidden = false;
+    rewardContainerEl.setAttribute("aria-hidden", "false");
+
+    if (rewardHideTimeoutId !== null) {
+      clearTimeout(rewardHideTimeoutId);
+    }
+
+    rewardHideTimeoutId = window.setTimeout(function () {
+      hideRewardAsset();
+      rewardHideTimeoutId = null;
+    }, displayDuration);
+  };
+
   if (addSpoolButton) {
     addSpoolButton.addEventListener("click", function () {
       createSpoolRow();
@@ -251,6 +297,8 @@ window.addEventListener("DOMContentLoaded", function () {
       if (totalOutputEl) {
         totalOutputEl.textContent = formatCurrency(finalTotal);
       }
+
+      showRandomRewardAsset();
     });
   }
 
