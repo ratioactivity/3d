@@ -7,6 +7,8 @@ window.addEventListener("DOMContentLoaded", function () {
   var hoursCostInput = document.getElementById("hours-cost");
   var additionalLaborInput = document.getElementById("additional-labor");
   var roundingRuleInput = document.getElementById("rounding-rule");
+  var modelSourceCheckboxes = Array.prototype.slice.call(document.querySelectorAll('input[name="model-source"]'));
+  var exemptPrinterCostInput = document.getElementById("exempt-printer-cost");
 
   var pricePerGramUsedEl = document.getElementById("price-per-gram-used");
   var baseFilamentCostEl = document.getElementById("base-filament-cost");
@@ -14,6 +16,8 @@ window.addEventListener("DOMContentLoaded", function () {
   var totalFilamentCostEl = document.getElementById("total-filament-cost");
   var hoursCostOutputEl = document.getElementById("hours-cost-output");
   var additionalLaborOutputEl = document.getElementById("additional-labor-output");
+  var modelSourceFeeOutputEl = document.getElementById("model-source-fee-output");
+  var printerCostOutputEl = document.getElementById("printer-cost-output");
   var rawSubtotalOutputEl = document.getElementById("raw-subtotal-output");
   var roundedFinalTotalOutputEl = document.getElementById("rounded-final-total-output");
   var totalOutputEl = document.getElementById("total-output");
@@ -29,6 +33,7 @@ window.addEventListener("DOMContentLoaded", function () {
     "assets/fox.png",
   ];
   var rewardHideTimeoutId = null;
+  var fixedPrinterCost = 2;
 
   var parseNumericValue = function (value) {
     var normalizedValue = String(value === undefined || value === null ? "" : value).trim();
@@ -174,6 +179,27 @@ window.addEventListener("DOMContentLoaded", function () {
       insuranceAmount: insuranceAmount,
       totalFilamentCost: totalFilamentCost,
     };
+  };
+
+  var getModelSourceFee = function () {
+    var checkedFee = 0;
+
+    modelSourceCheckboxes.forEach(function (checkboxEl) {
+      if (checkboxEl.checked) {
+        checkedFee = parseNumericValue(checkboxEl.value);
+      }
+    });
+
+    return checkedFee;
+  };
+
+  var getPrinterCost = function () {
+    var isExempt = Boolean(exemptPrinterCostInput && exemptPrinterCostInput.checked);
+    if (isExempt) {
+      return 0;
+    }
+
+    return fixedPrinterCost;
   };
 
   var getHoursCost = function () {
@@ -355,6 +381,24 @@ window.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  if (modelSourceCheckboxes.length > 0) {
+    modelSourceCheckboxes.forEach(function (checkboxEl) {
+      checkboxEl.addEventListener("change", function () {
+        if (checkboxEl.checked) {
+          modelSourceCheckboxes.forEach(function (otherCheckbox) {
+            if (otherCheckbox !== checkboxEl) {
+              otherCheckbox.checked = false;
+            }
+          });
+        }
+
+        if (modelSourceCheckboxes.every(function (candidate) { return !candidate.checked; })) {
+          modelSourceCheckboxes[modelSourceCheckboxes.length - 1].checked = true;
+        }
+      });
+    });
+  }
+
   if (spoolRowsEl && spoolRowsEl.children.length === 0) {
     createSpoolRow();
   }
@@ -370,7 +414,9 @@ window.addEventListener("DOMContentLoaded", function () {
       var filamentBreakdown = calculateFilamentBreakdown(spoolTotals.totalGrams, spoolTotals.baseFilamentCost);
       var hoursCost = getHoursCost();
       var additionalLabor = parseNumericValue(additionalLaborInput ? additionalLaborInput.value : "");
-      var rawTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor;
+      var modelSourceFee = getModelSourceFee();
+      var printerCost = getPrinterCost();
+      var rawTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor + modelSourceFee + printerCost;
       var roundingRule = roundingRuleInput ? roundingRuleInput.value : "nearest";
       var finalTotal = applyRoundingRule(rawTotal, roundingRule);
 
@@ -400,6 +446,14 @@ window.addEventListener("DOMContentLoaded", function () {
 
       if (additionalLaborOutputEl) {
         additionalLaborOutputEl.textContent = formatCurrency(additionalLabor);
+      }
+
+      if (modelSourceFeeOutputEl) {
+        modelSourceFeeOutputEl.textContent = formatCurrency(modelSourceFee);
+      }
+
+      if (printerCostOutputEl) {
+        printerCostOutputEl.textContent = formatCurrency(printerCost);
       }
 
       if (rawSubtotalOutputEl) {
