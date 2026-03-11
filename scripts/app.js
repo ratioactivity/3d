@@ -21,12 +21,12 @@ window.addEventListener("DOMContentLoaded", function () {
   var rewardImageEl = document.getElementById("reward-image");
 
   var rewardAssets = [
-    "/assets/roach.gif",
-    "/assets/blahaj.gif",
-    "/assets/cat.gif",
-    "/assets/paste.gif",
-    "/assets/fishman.png",
-    "/assets/fox.png",
+    "assets/roach.gif",
+    "assets/blahaj.gif",
+    "assets/cat.gif",
+    "assets/paste.gif",
+    "assets/fishman.png",
+    "assets/fox.png",
   ];
   var rewardHideTimeoutId = null;
 
