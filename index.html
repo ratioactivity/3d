@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fintastic Cost Calculator</title>
+    <title>Spools</title>
+    <link rel="icon" type="image/png" href="assets/rainbowstar.png" />
     <link rel="stylesheet" href="styles/main.css" />
   </head>
   <body>
@@ -41,16 +42,12 @@
               <option value="down">Down</option>
             </select>
 
-            <fieldset class="checkbox-group" aria-labelledby="model-source-heading">
-              <legend id="model-source-heading">Model source fee (pick one)</legend>
-              <label><input type="checkbox" name="model-source" value="1" /> Cinderwing3D (+$1.00)</label>
-              <label><input type="checkbox" name="model-source" value="1.25" /> 3DGOB (+$1.25)</label>
-              <label><input type="checkbox" name="model-source" value="0.5" /> Starmouse3D (+$0.50)</label>
-              <label><input type="checkbox" name="model-source" value="1" /> Misc. Paid Model (+$1.00)</label>
-              <label><input type="checkbox" name="model-source" value="0" checked /> Free Model (+$0.00)</label>
-            </fieldset>
-
-            <label class="standalone-checkbox"><input id="exempt-printer-cost" type="checkbox" /> Exempt fixed printer cost (+$2.00)</label>
+            <label class="customs-toggle" for="customs-enabled">
+              <input id="customs-enabled" name="customs-enabled" type="checkbox" />
+              Include customs estimate
+            </label>
+            <label for="customs-estimate">Customs estimate ($)</label>
+            <input id="customs-estimate" name="customs-estimate" type="number" placeholder="0" step="0.01" min="0" disabled />
           </section>
 
           <section aria-labelledby="breakdown-heading">
@@ -62,8 +59,7 @@
               <p>Total Filament Cost: <span id="total-filament-cost">$0.00</span></p>
               <p>Hours Cost: <span id="hours-cost-output">$0.00</span></p>
               <p>Additional Labor: <span id="additional-labor-output">$0.00</span></p>
-              <p>Model Source Fee: <span id="model-source-fee-output">$0.00</span></p>
-              <p>Printer Cost: <span id="printer-cost-output">$2.00</span></p>
+              <p>Customs Estimate: <span id="customs-estimate-output">$0.00</span></p>
               <p>Raw Subtotal: <span id="raw-subtotal-output">$0.00</span></p>
               <p>Rounded Final Total: <span id="rounded-final-total-output">$0.00</span></p>
             </div>

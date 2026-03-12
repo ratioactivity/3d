@@ -6,6 +6,8 @@ window.addEventListener("DOMContentLoaded", function () {
   var printingHoursInput = document.getElementById("printing-hours");
   var hoursCostInput = document.getElementById("hours-cost");
   var additionalLaborInput = document.getElementById("additional-labor");
+  var customsEnabledInput = document.getElementById("customs-enabled");
+  var customsEstimateInput = document.getElementById("customs-estimate");
   var roundingRuleInput = document.getElementById("rounding-rule");
   var modelSourceCheckboxes = Array.prototype.slice.call(document.querySelectorAll('input[name="model-source"]'));
   var exemptPrinterCostInput = document.getElementById("exempt-printer-cost");
@@ -16,8 +18,7 @@ window.addEventListener("DOMContentLoaded", function () {
   var totalFilamentCostEl = document.getElementById("total-filament-cost");
   var hoursCostOutputEl = document.getElementById("hours-cost-output");
   var additionalLaborOutputEl = document.getElementById("additional-labor-output");
-  var modelSourceFeeOutputEl = document.getElementById("model-source-fee-output");
-  var printerCostOutputEl = document.getElementById("printer-cost-output");
+  var customsEstimateOutputEl = document.getElementById("customs-estimate-output");
   var rawSubtotalOutputEl = document.getElementById("raw-subtotal-output");
   var roundedFinalTotalOutputEl = document.getElementById("rounded-final-total-output");
   var totalOutputEl = document.getElementById("total-output");
@@ -131,6 +132,12 @@ window.addEventListener("DOMContentLoaded", function () {
     isValid = validateNonNegativeField(printingHoursInput) && isValid;
     isValid = validateNonNegativeField(additionalLaborInput) && isValid;
 
+    if (customsEnabledInput && customsEnabledInput.checked) {
+      isValid = validateNonNegativeField(customsEstimateInput) && isValid;
+    } else {
+      clearInlineMessage(customsEstimateInput);
+    }
+
     if (spoolRowsEl) {
       var spoolRows = Array.prototype.slice.call(spoolRowsEl.querySelectorAll(".spool-row"));
       spoolRows.forEach(function (spoolRow) {
@@ -214,6 +221,19 @@ window.addEventListener("DOMContentLoaded", function () {
 
     if (hoursCostInput) {
       hoursCostInput.value = hoursCost.toFixed(2);
+    }
+  };
+
+  var updateCustomsState = function () {
+    if (!customsEstimateInput) {
+      return;
+    }
+
+    var customsEnabled = Boolean(customsEnabledInput && customsEnabledInput.checked);
+    customsEstimateInput.disabled = !customsEnabled;
+
+    if (!customsEnabled) {
+      clearInlineMessage(customsEstimateInput);
     }
   };
 
@@ -381,21 +401,16 @@ window.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  if (modelSourceCheckboxes.length > 0) {
-    modelSourceCheckboxes.forEach(function (checkboxEl) {
-      checkboxEl.addEventListener("change", function () {
-        if (checkboxEl.checked) {
-          modelSourceCheckboxes.forEach(function (otherCheckbox) {
-            if (otherCheckbox !== checkboxEl) {
-              otherCheckbox.checked = false;
-            }
-          });
-        }
+  if (customsEnabledInput) {
+    customsEnabledInput.addEventListener("change", function () {
+      updateCustomsState();
+      validateAllNumericFields();
+    });
+  }
 
-        if (modelSourceCheckboxes.every(function (candidate) { return !candidate.checked; })) {
-          modelSourceCheckboxes[modelSourceCheckboxes.length - 1].checked = true;
-        }
-      });
+  if (customsEstimateInput) {
+    customsEstimateInput.addEventListener("input", function () {
+      validateNonNegativeField(customsEstimateInput);
     });
   }
 
@@ -404,6 +419,7 @@ window.addEventListener("DOMContentLoaded", function () {
   }
 
   updateHoursCostField();
+  updateCustomsState();
 
   if (form) {
     form.addEventListener("submit", function (event) {
@@ -414,9 +430,10 @@ window.addEventListener("DOMContentLoaded", function () {
       var filamentBreakdown = calculateFilamentBreakdown(spoolTotals.totalGrams, spoolTotals.baseFilamentCost);
       var hoursCost = getHoursCost();
       var additionalLabor = parseNumericValue(additionalLaborInput ? additionalLaborInput.value : "");
-      var modelSourceFee = getModelSourceFee();
-      var printerCost = getPrinterCost();
-      var rawTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor + modelSourceFee + printerCost;
+      var customsEstimate = customsEnabledInput && customsEnabledInput.checked
+        ? parseNumericValue(customsEstimateInput ? customsEstimateInput.value : "")
+        : 0;
+      var rawTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor + customsEstimate;
       var roundingRule = roundingRuleInput ? roundingRuleInput.value : "nearest";
       var finalTotal = applyRoundingRule(rawTotal, roundingRule);
 
@@ -448,12 +465,8 @@ window.addEventListener("DOMContentLoaded", function () {
         additionalLaborOutputEl.textContent = formatCurrency(additionalLabor);
       }
 
-      if (modelSourceFeeOutputEl) {
-        modelSourceFeeOutputEl.textContent = formatCurrency(modelSourceFee);
-      }
-
-      if (printerCostOutputEl) {
-        printerCostOutputEl.textContent = formatCurrency(printerCost);
+      if (customsEstimateOutputEl) {
+        customsEstimateOutputEl.textContent = formatCurrency(customsEstimate);
       }
 
       if (rawSubtotalOutputEl) {

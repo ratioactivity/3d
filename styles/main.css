@@ -63,7 +63,7 @@ main {
 
 header {
   text-align: center;
-  margin: 0;
+  margin: 0 0 0.28rem;
 }
 
 header p {
@@ -187,6 +187,18 @@ button {
 
 button:hover {
   background: linear-gradient(180deg, #ffeefe 0%, #e8d3ff 100%);
+}
+
+.customs-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.customs-toggle input {
+  width: auto;
+  margin: 0;
 }
 
 #breakdown-output p,
