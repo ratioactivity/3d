@@ -6,6 +6,8 @@ window.addEventListener("DOMContentLoaded", function () {
   var printingHoursInput = document.getElementById("printing-hours");
   var hoursCostInput = document.getElementById("hours-cost");
   var additionalLaborInput = document.getElementById("additional-labor");
+  var customsEnabledInput = document.getElementById("customs-enabled");
+  var customsEstimateInput = document.getElementById("customs-estimate");
   var roundingRuleInput = document.getElementById("rounding-rule");
 
   var pricePerGramUsedEl = document.getElementById("price-per-gram-used");
@@ -14,6 +16,7 @@ window.addEventListener("DOMContentLoaded", function () {
   var totalFilamentCostEl = document.getElementById("total-filament-cost");
   var hoursCostOutputEl = document.getElementById("hours-cost-output");
   var additionalLaborOutputEl = document.getElementById("additional-labor-output");
+  var customsEstimateOutputEl = document.getElementById("customs-estimate-output");
   var rawSubtotalOutputEl = document.getElementById("raw-subtotal-output");
   var roundedFinalTotalOutputEl = document.getElementById("rounded-final-total-output");
   var totalOutputEl = document.getElementById("total-output");
@@ -31,9 +34,14 @@ window.addEventListener("DOMContentLoaded", function () {
   var rewardHideTimeoutId = null;
 
   var parseNumericValue = function (value) {
-    var parsedValue = parseFloat(value);
+    var normalizedValue = String(value === undefined || value === null ? "" : value).trim();
+    if (normalizedValue === "") {
+      return 0;
+    }
+
+    var parsedValue = parseFloat(normalizedValue);
     if (isFinite(parsedValue)) {
-      return parsedValue;
+      return Math.max(0, parsedValue);
     }
 
     return 0;
@@ -41,6 +49,105 @@ window.addEventListener("DOMContentLoaded", function () {
 
   var formatCurrency = function (value) {
     return "$" + value.toFixed(2);
+  };
+
+  var showInlineMessage = function (inputEl, message, tone) {
+    if (!inputEl || !inputEl.parentNode) {
+      return;
+    }
+
+    var messageEl = inputEl.nextElementSibling;
+    if (!messageEl || !messageEl.classList.contains("inline-input-message")) {
+      messageEl = document.createElement("p");
+      messageEl.className = "inline-input-message";
+      inputEl.parentNode.insertBefore(messageEl, inputEl.nextSibling);
+    }
+
+    messageEl.textContent = message;
+    messageEl.classList.remove("is-help", "is-error");
+    messageEl.classList.add(tone === "error" ? "is-error" : "is-help");
+  };
+
+  var clearInlineMessage = function (inputEl) {
+    if (!inputEl) {
+      return;
+    }
+
+    var messageEl = inputEl.nextElementSibling;
+    if (messageEl && messageEl.classList.contains("inline-input-message")) {
+      messageEl.remove();
+    }
+  };
+
+  var validateNonNegativeField = function (inputEl) {
+    if (!inputEl) {
+      return true;
+    }
+
+    var rawValue = String(inputEl.value || "").trim();
+    if (rawValue === "") {
+      clearInlineMessage(inputEl);
+      return true;
+    }
+
+    var parsedValue = parseFloat(rawValue);
+    if (!isFinite(parsedValue)) {
+      showInlineMessage(inputEl, "Please enter a valid number.", "error");
+      return false;
+    }
+
+    if (parsedValue < 0) {
+      showInlineMessage(inputEl, "Value cannot be negative. It will be treated as 0.", "error");
+      return false;
+    }
+
+    clearInlineMessage(inputEl);
+    return true;
+  };
+
+  var validateSpoolRowPair = function (spoolRow) {
+    var spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+    var spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+    var spoolCost = parseNumericValue(spoolCostInput ? spoolCostInput.value : "");
+    var spoolGrams = parseNumericValue(spoolGramsInput ? spoolGramsInput.value : "");
+
+    if (spoolGrams > 0 && spoolCost === 0 && spoolCostInput) {
+      showInlineMessage(spoolCostInput, "Add spool cost to price used grams accurately.", "help");
+      return false;
+    }
+
+    if (spoolCostInput) {
+      clearInlineMessage(spoolCostInput);
+    }
+
+    return true;
+  };
+
+  var validateAllNumericFields = function () {
+    var isValid = true;
+
+    isValid = validateNonNegativeField(printingHoursInput) && isValid;
+    isValid = validateNonNegativeField(additionalLaborInput) && isValid;
+
+    if (customsEnabledInput && customsEnabledInput.checked) {
+      isValid = validateNonNegativeField(customsEstimateInput) && isValid;
+    } else {
+      clearInlineMessage(customsEstimateInput);
+    }
+
+    if (spoolRowsEl) {
+      var spoolRows = Array.prototype.slice.call(spoolRowsEl.querySelectorAll(".spool-row"));
+      spoolRows.forEach(function (spoolRow) {
+        var spoolCostInput = spoolRow.querySelector(".spool-cost-input");
+        var spoolGramsInput = spoolRow.querySelector(".spool-grams-input");
+
+        isValid = validateNonNegativeField(spoolCostInput) && isValid;
+        isValid = validateNonNegativeField(spoolGramsInput) && isValid;
+        isValid = validateSpoolRowPair(spoolRow) && isValid;
+      });
+    }
+
+    return isValid;
   };
 
   var getInsuranceRate = function (grams) {
@@ -93,6 +200,19 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   };
 
+  var updateCustomsState = function () {
+    if (!customsEstimateInput) {
+      return;
+    }
+
+    var customsEnabled = Boolean(customsEnabledInput && customsEnabledInput.checked);
+    customsEstimateInput.disabled = !customsEnabled;
+
+    if (!customsEnabled) {
+      clearInlineMessage(customsEstimateInput);
+    }
+  };
+
   var updateSpoolRowPrice = function (spoolRow) {
     var spoolCostInput = spoolRow.querySelector(".spool-cost-input");
     var spoolPriceOutput = spoolRow.querySelector(".spool-price-output");
@@ -127,6 +247,8 @@ window.addEventListener("DOMContentLoaded", function () {
     spoolCostInput.type = "number";
     spoolCostInput.className = "spool-cost-input";
     spoolCostInput.placeholder = "0";
+    spoolCostInput.min = "0";
+    spoolCostInput.step = "0.01";
 
     var spoolGramsLabel = document.createElement("label");
     spoolGramsLabel.textContent = "Grams used in piece";
@@ -136,6 +258,7 @@ window.addEventListener("DOMContentLoaded", function () {
     spoolGramsInput.className = "spool-grams-input";
     spoolGramsInput.placeholder = "0";
     spoolGramsInput.step = "0.01";
+    spoolGramsInput.min = "0";
 
     var spoolPriceLine = document.createElement("p");
     spoolPriceLine.textContent = "Price per gram: ";
@@ -151,7 +274,14 @@ window.addEventListener("DOMContentLoaded", function () {
     removeButton.textContent = "Remove";
 
     spoolCostInput.addEventListener("input", function () {
+      validateNonNegativeField(spoolCostInput);
+      validateSpoolRowPair(spoolRow);
       updateSpoolRowPrice(spoolRow);
+    });
+
+    spoolGramsInput.addEventListener("input", function () {
+      validateNonNegativeField(spoolGramsInput);
+      validateSpoolRowPair(spoolRow);
     });
 
     removeButton.addEventListener("click", function () {
@@ -236,7 +366,27 @@ window.addEventListener("DOMContentLoaded", function () {
 
   if (printingHoursInput) {
     printingHoursInput.addEventListener("input", function () {
+      validateNonNegativeField(printingHoursInput);
       updateHoursCostField();
+    });
+  }
+
+  if (additionalLaborInput) {
+    additionalLaborInput.addEventListener("input", function () {
+      validateNonNegativeField(additionalLaborInput);
+    });
+  }
+
+  if (customsEnabledInput) {
+    customsEnabledInput.addEventListener("change", function () {
+      updateCustomsState();
+      validateAllNumericFields();
+    });
+  }
+
+  if (customsEstimateInput) {
+    customsEstimateInput.addEventListener("input", function () {
+      validateNonNegativeField(customsEstimateInput);
     });
   }
 
@@ -245,16 +395,21 @@ window.addEventListener("DOMContentLoaded", function () {
   }
 
   updateHoursCostField();
+  updateCustomsState();
 
   if (form) {
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+      validateAllNumericFields();
 
       var spoolTotals = getSpoolTotals();
       var filamentBreakdown = calculateFilamentBreakdown(spoolTotals.totalGrams, spoolTotals.baseFilamentCost);
       var hoursCost = getHoursCost();
       var additionalLabor = parseNumericValue(additionalLaborInput ? additionalLaborInput.value : "");
-      var rawTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor;
+      var customsEstimate = customsEnabledInput && customsEnabledInput.checked
+        ? parseNumericValue(customsEstimateInput ? customsEstimateInput.value : "")
+        : 0;
+      var rawTotal = filamentBreakdown.totalFilamentCost + hoursCost + additionalLabor + customsEstimate;
       var roundingRule = roundingRuleInput ? roundingRuleInput.value : "nearest";
       var finalTotal = applyRoundingRule(rawTotal, roundingRule);
 
@@ -284,6 +439,10 @@ window.addEventListener("DOMContentLoaded", function () {
 
       if (additionalLaborOutputEl) {
         additionalLaborOutputEl.textContent = formatCurrency(additionalLabor);
+      }
+
+      if (customsEstimateOutputEl) {
+        customsEstimateOutputEl.textContent = formatCurrency(customsEstimate);
       }
 
       if (rawSubtotalOutputEl) {

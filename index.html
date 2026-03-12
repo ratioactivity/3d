@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spools</title>
+    <link rel="icon" type="image/png" href="assets/rainbowstar.png" />
     <link rel="stylesheet" href="styles/main.css" />
   </head>
   <body>
@@ -40,6 +41,13 @@
               <option value="up">Up</option>
               <option value="down">Down</option>
             </select>
+
+            <label class="customs-toggle" for="customs-enabled">
+              <input id="customs-enabled" name="customs-enabled" type="checkbox" />
+              Include customs estimate
+            </label>
+            <label for="customs-estimate">Customs estimate ($)</label>
+            <input id="customs-estimate" name="customs-estimate" type="number" placeholder="0" step="0.01" min="0" disabled />
           </section>
 
           <section aria-labelledby="breakdown-heading">
@@ -51,6 +59,7 @@
               <p>Total Filament Cost: <span id="total-filament-cost">$0.00</span></p>
               <p>Hours Cost: <span id="hours-cost-output">$0.00</span></p>
               <p>Additional Labor: <span id="additional-labor-output">$0.00</span></p>
+              <p>Customs Estimate: <span id="customs-estimate-output">$0.00</span></p>
               <p>Raw Subtotal: <span id="raw-subtotal-output">$0.00</span></p>
               <p>Rounded Final Total: <span id="rounded-final-total-output">$0.00</span></p>
             </div>
