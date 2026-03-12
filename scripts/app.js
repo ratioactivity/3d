@@ -9,6 +9,8 @@ window.addEventListener("DOMContentLoaded", function () {
   var customsEnabledInput = document.getElementById("customs-enabled");
   var customsEstimateInput = document.getElementById("customs-estimate");
   var roundingRuleInput = document.getElementById("rounding-rule");
+  var modelSourceCheckboxes = Array.prototype.slice.call(document.querySelectorAll('input[name="model-source"]'));
+  var exemptPrinterCostInput = document.getElementById("exempt-printer-cost");
 
   var pricePerGramUsedEl = document.getElementById("price-per-gram-used");
   var baseFilamentCostEl = document.getElementById("base-filament-cost");
@@ -32,6 +34,7 @@ window.addEventListener("DOMContentLoaded", function () {
     "assets/fox.png",
   ];
   var rewardHideTimeoutId = null;
+  var fixedPrinterCost = 2;
 
   var parseNumericValue = function (value) {
     var normalizedValue = String(value === undefined || value === null ? "" : value).trim();
@@ -183,6 +186,27 @@ window.addEventListener("DOMContentLoaded", function () {
       insuranceAmount: insuranceAmount,
       totalFilamentCost: totalFilamentCost,
     };
+  };
+
+  var getModelSourceFee = function () {
+    var checkedFee = 0;
+
+    modelSourceCheckboxes.forEach(function (checkboxEl) {
+      if (checkboxEl.checked) {
+        checkedFee = parseNumericValue(checkboxEl.value);
+      }
+    });
+
+    return checkedFee;
+  };
+
+  var getPrinterCost = function () {
+    var isExempt = Boolean(exemptPrinterCostInput && exemptPrinterCostInput.checked);
+    if (isExempt) {
+      return 0;
+    }
+
+    return fixedPrinterCost;
   };
 
   var getHoursCost = function () {
